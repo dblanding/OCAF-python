@@ -28,35 +28,21 @@ def get_entry(label):
     entry = entry_str.ToCString()
     return entry
 
-def get_name(label):
-    """Return name of label"""
-    return label.GetLabelName()
-
-
-# Create an application and document with empty root_label
+# Create a document
 title = "Main document"
 doc = TDocStd_Document(TCollection_ExtendedString(title))
-app = XCAFApp_Application_GetApplication()
-app.NewDocument(TCollection_ExtendedString("MDTV-XCAF"), doc)
-shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
-color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
-# type(doc.Main()) = <class 'OCC.Core.TDF.TDF_Label'>
-# 0:1 doc.Main().EntryDumpToString()
-# 0:1:1   shape_tool is at this label entry
-# 0:1:2   color_tool at this entry
-# 0:1:1:1 create root_label at this entry
-root = shape_tool.NewShape()
-name = "Top"  # name for root_label
-TDataStd_Name.Set(root, TCollection_ExtendedString(name))
+root = doc.Main()
+print(f"root entry : [{doc.Main().EntryDumpToString()}]")
+print(f"doc_root entry: [{doc.Main().Root().EntryDumpToString()}]")
 
 # Tag
 
 # Creating child labels using random delivery of tags
 child1 = TDF_TagSource.NewChild(root)
 child2 = TDF_TagSource.NewChild(root)
-print(get_entry(root))  # 0:1:1:1
-print(get_entry(child1))  # 0:1:1:1:1
-print(get_entry(child2))  # 0:1:1:1:2
+print(get_entry(root))  # 0:1
+print(get_entry(child1))  # 0:1:1
+print(get_entry(child2))  # 0:1:2
 
 # Creation of a child label by user delivery from a tag
 a_child = root.FindChild(27, True)  # new label is created
@@ -73,20 +59,44 @@ if not a_child.IsNull():
 
 # Label creation
 root_label_depth = root.Depth()
-print(f"\n{root_label_depth = }")  # 3
-print(f"root label entry is {get_entry(root)}\n")  # 0:1:1:1
+print(f"\n{root_label_depth = }")  # 1
+print(f"root label entry is {get_entry(root)}\n")  # 0:1
 
 
 # Creating child labels
 
-# creating a label with tag 10 at Root
-lab1 = doc.Main().Root().FindChild(10)
+# 0 :       ( doc.Root() )
+# |
+# 0 : 1     (root)
+# |   |
+# 0 : 1 : 1
+# |   |
+# 0 : 1 : 2
+# |   |
+# 0 : 1 : 3
+# |   |
+# 0 : 1 : 27
+# |
+# 0 : 8     (lab1)
+# |   |
+# 0 : 8 : 7 (lab2)
+# |   |
+# 0 : 8 : 2 (lab3)
+# |
+# 0 : 3     (level1)
+# |   |
+# 0 : 3 : 7 (level2)
+#
 
-# creating labels 7 and 2 on label 10
+# creating a label with tag 8 at Root
+lab1 = doc.Main().Root().FindChild(8)
+print(f"Entry of lab1: {get_entry(lab1)}")
+
+# creating labels 7 and 2 on label 8
 lab2 = lab1.FindChild(7)
 lab3 = lab1.FindChild(2)
 
-level1 = root .FindChild(3)
+level1 = root.FindChild(3)
 level2 = level1.FindChild(1)
 
 # Retrieving child labels
@@ -95,7 +105,7 @@ itl.Initialize(root)
 print("Entries of children of root:")
 while itl.More():
     a_child = itl.Value()
-    print(f"\t{get_name(a_child)} [{get_entry(a_child)}]")
+    print(f"\t[{get_entry(a_child)}]")
     itl.Next()
 
 # Retrieving the father label
@@ -146,3 +156,6 @@ current.ForgetAttribute(guid)
 # Test again the attachment to a label
 nb_att = current.NbAttributes()
 print(f"The label has {nb_att} attribute(s) attached")
+
+print(f"{get_entry(doc.Main()) = }")
+print(f"{get_entry(doc.Main().Root()) = }")
