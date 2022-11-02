@@ -12,13 +12,10 @@
 
 from OCC.Core.TCollection import (TCollection_AsciiString,
                                   TCollection_ExtendedString)
-from OCC.Core.TDataStd import TDataStd_Name, TDataStd_Integer
+from OCC.Core.TDataStd import TDataStd_Integer
 from OCC.Core.TDocStd import TDocStd_Document
 from OCC.Core.TDF import (TDF_Tool, TDF_TagSource,
                           TDF_ChildIterator,)
-from OCC.Core.XCAFApp import XCAFApp_Application_GetApplication
-from OCC.Core.XCAFDoc import (XCAFDoc_DocumentTool_ColorTool,
-                              XCAFDoc_DocumentTool_ShapeTool,)
 
 
 def get_entry(label):
@@ -32,8 +29,13 @@ def get_entry(label):
 title = "Main document"
 doc = TDocStd_Document(TCollection_ExtendedString(title))
 root = doc.Main()
+
+# 2 ways to get label entry
 print(f"root entry : [{doc.Main().EntryDumpToString()}]")
 print(f"doc_root entry: [{doc.Main().Root().EntryDumpToString()}]")
+
+print(f"{get_entry(doc.Main()) = }")
+print(f"{get_entry(doc.Main().Root()) = }")
 
 # Tag
 
@@ -156,6 +158,3 @@ current.ForgetAttribute(guid)
 # Test again the attachment to a label
 nb_att = current.NbAttributes()
 print(f"The label has {nb_att} attribute(s) attached")
-
-print(f"{get_entry(doc.Main()) = }")
-print(f"{get_entry(doc.Main().Root()) = }")
